@@ -1,0 +1,44 @@
+import psycopg2
+import os
+from psycopg2.extras import RealDictCursor
+from dotenv import load_dotenv
+
+load_dotenv()
+DATABASE_URL = os.getenv('DATABASE_URL')
+
+
+
+class UrlRepository:
+#метод для создания соединения, init не нужен,  потому что в
+#каждом методе соединение открывается заново
+    def get_connection(self):
+        conn = psycopg2.connect(DATABASE_URL)
+        return conn
+    
+#вывод всех данных из таблицы urls    
+    def get_content(self):
+        with self.get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("SELECT * FROM urls;")
+                return cur.fetchall()
+            
+#получение данных об url по id    
+    def find(self, id):
+        with self.get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                sql = "SELECT * FROM urls WHERE id = %s;"
+                cur.execute(sql, (id,))
+                return cur.fetchone()
+
+#сохранение url в БД и вывод его id
+    def save(self, url):
+        with self.get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                sql = """
+                INSERT INTO urls (name)
+                VALUES (%s) RETURNING id;
+                """
+                cur.execute(sql, (url,))
+                result = cur.fetchone()
+                conn.commit()
+                return result['id']
