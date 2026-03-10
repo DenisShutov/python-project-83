@@ -42,3 +42,13 @@ class UrlRepository:
                 result = cur.fetchone()
                 conn.commit()
                 return result['id']
+    
+    def find_by_name(self, name):
+        with self.get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                sql = """
+                SELECT id FROM urls WHERE  name= %s;
+                """
+                cur.execute(sql, (name,))
+                return cur.fetchone()
+               
