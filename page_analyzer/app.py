@@ -11,7 +11,7 @@ from flask import (
     request,
     url_for,
 )
-
+from urllib.parse import urlparse
 from url_repository import UrlRepository
 
 load_dotenv()
@@ -30,27 +30,30 @@ def index():
 
 @app.route("/urls", methods=['POST'])
 def add_url():
-    urls = repo.get_content()
     url = request.form.get('url', '')
+    normalize_url = normalize(url)
 
-    if not validators.url(url) or len(url) > 255:
+    if not validators.url(normalize_url) or len(normalize_url) > 255:
         flash('Неверный URl', 'danger')
         return render_template(
             'index.html',
             url=url
         ), 422
     
-    for i in urls:
-        if i['name'] == url:
-            id = i['id']
-            flash('Данный URL уже добален', 'info')
-            return redirect(url_for('show_url', id=id))
+    url_data = repo.find_by_name(normalize_url)
+    if url_data:
+        id = url_data['id']
+        flash('Данный URL уже добален', 'info')
+        return redirect(url_for('show_url', id=id))
     
-    id = repo.save(url)
+    id = repo.save(normalize_url)
     
     flash('Страница успешно добавлена', 'success')
     return redirect(url_for('show_url', id=id))
 
+def normalize(url):
+    parsed = urlparse(url)
+    return f'{parsed.scheme}://{parsed.netloc}'.lower()
 
 @app.route('/urls/<int:id>')
 def show_url(id):
