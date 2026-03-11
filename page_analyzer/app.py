@@ -25,8 +25,9 @@ repo = UrlRepository()
 
 @app.route("/")
 def index():
+    url = request.args.get('url', '')
     messages = get_flashed_messages(with_categories=True)
-    return render_template('index.html', messages=messages)
+    return render_template('index.html', messages=messages, url=url)
 
 
 @app.route("/urls", methods=['POST'])
@@ -36,10 +37,7 @@ def add_url():
 
     if not validators.url(normalize_url) or len(normalize_url) > 255:
         flash('Неверный URl', 'danger')
-        return render_template(
-            'index.html',
-            url=url
-        ), 422
+        return redirect(url_for('index', url=url))
     
     url_data = repo.find_by_name(normalize_url)
     if url_data:
