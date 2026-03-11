@@ -1,4 +1,5 @@
 import os
+from urllib.parse import urlparse
 
 import validators
 from dotenv import load_dotenv
@@ -11,7 +12,7 @@ from flask import (
     request,
     url_for,
 )
-from urllib.parse import urlparse
+
 from url_repository import UrlRepository
 
 load_dotenv()
@@ -51,9 +52,11 @@ def add_url():
     flash('Страница успешно добавлена', 'success')
     return redirect(url_for('show_url', id=id))
 
+
 def normalize(url):
     parsed = urlparse(url)
     return f'{parsed.scheme}://{parsed.netloc}'.lower()
+
 
 @app.route('/urls/<int:id>')
 def show_url(id):
