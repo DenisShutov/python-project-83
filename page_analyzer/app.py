@@ -75,3 +75,7 @@ def get_urls():
         'urls.html',
         urls=urls
     )
+
+@app.route('/urls/<int:id>/checks', methods=['POST'])
+def check_url(id):
+    pass
