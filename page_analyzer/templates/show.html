@@ -37,22 +37,34 @@
                 </table>
                 
                 <h1>Проверки</h1>
-                <form>
+                <form action="/urls/{{ url.id }}/checks" method="post">
                     <div class="row mt-3">
                         <div class="col-3">
-                            <button type="submit" class="btn btn-primary w-100">Проверить</button>
+                            <button type="submit" value="Запустить проверку" class="btn btn-primary w-100">Проверить</button>
                         </div>
                     </div>
                 </form>
-                <table class="table table-bordered table-hover mt-3">
-                    <tr>
-                        <th>ID</th>
-                        <th>Код ответа</th>
-                        <th>h1</th>
-                        <th>title</th>
-                        <th>description</th>
-                        <th>Дата создания</th>
-                    </tr>
+                <table class="table table-bordered table-hover mt-3" data-test="checks">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Код ответа</th>
+                            <th>h1</th>
+                            <th>title</th>
+                            <th>description</th>
+                            <th>Дата создания</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         </div>
