@@ -56,14 +56,16 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
+                        {% for check in checks %}
+                            <tr>
+                                <td>{{ check.id }}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>{{ check.created_at }}</td>
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
