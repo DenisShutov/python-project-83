@@ -60,22 +60,26 @@ def normalize(url):
 def show_url(id):
     messages = get_flashed_messages(with_categories=True)
     url = repo.find(id)
+    checks = repo.get_url_checks(id)
     return render_template(
         'show.html',
         url=url,
-        messages=messages
+        messages=messages,
+        checks=checks
     )
 
 
 @app.route('/urls')
 def get_urls():
     urls = (repo.get_content())
-    urls.reverse()
     return render_template(
         'urls.html',
         urls=urls
     )
 
+
 @app.route('/urls/<int:id>/checks', methods=['POST'])
 def check_url(id):
-    pass
+    repo.save_check(id)
+    flash('Страница успешно проверена', 'success')
+    return redirect(url_for('show_url', id=id))
