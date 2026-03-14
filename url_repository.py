@@ -62,18 +62,18 @@ class UrlRepository:
                 return cur.fetchone()
     
 #сохраняем данные о проверке по url_id в таблицу url_checks 
-    def save_check(self, url_id, status_code):
+    def save_check(self, url_id, status_code, h1=None, title=None, description=None):
         with self.get_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 sql = """
-                INSERT INTO url_checks (url_id, status_code)
-                VALUES (%s, %s) RETURNING id;
+                INSERT INTO url_checks (url_id, status_code, h1, title, description)
+                VALUES (%s, %s, %s, %s, %s) RETURNING id;
                 """
-                cur.execute(sql, (url_id, status_code))
+                cur.execute(sql, (url_id, status_code, h1, title, description))
                 check_id = cur.fetchone()
                 conn.commit()
                 return check_id
-            
+
 #выводим информацию о провереке заданного url_id    
     def get_url_checks(self, url_id):
         with self.get_connection() as conn:
