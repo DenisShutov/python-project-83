@@ -1,6 +1,7 @@
 import os
 from urllib.parse import urlparse
 
+import requests
 import validators
 from dotenv import load_dotenv
 from flask import (
@@ -80,6 +81,14 @@ def get_urls():
 
 @app.route('/urls/<int:id>/checks', methods=['POST'])
 def check_url(id):
-    repo.save_check(id)
-    flash('Страница успешно проверена', 'success')
+    url = repo.find(id)
+    url_name = url['name']
+    try:
+        r = requests.get(url_name, timeout=5)
+        r.raise_for_status()
+        status_code = r.status_code
+        repo.save_check(id, status_code)
+        flash('Страница успешно проверена', 'success')
+    except requests.exceptions.RequestException:
+        flash('Произошла ошибка при проверке', 'danger')
     return redirect(url_for('show_url', id=id))
