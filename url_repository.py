@@ -20,11 +20,12 @@ class UrlRepository:
         with self.get_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 sql = """
-                SELECT u.*, MAX(u_c.created_at) AS last_check
+                SELECT DISTINCT ON (u.id)
+                u.*, u_c.created_at AS last_check,
+                u_c.status_code
                 FROM urls as u
                 LEFT JOIN url_checks as u_c ON u.id = u_c.url_id
-                GROUP BY u.id, u.name, u.created_at
-                ORDER BY u.created_at DESC
+                ORDER BY  u.id DESC, u_c.created_at DESC
                 """
                 cur.execute(sql)
                 return cur.fetchall()
@@ -60,19 +61,20 @@ class UrlRepository:
                 cur.execute(sql, (name,))
                 return cur.fetchone()
     
-
-    def save_check(self, url_id):
+#сохраняем данные о проверке по url_id в таблицу url_checks 
+    def save_check(self, url_id, status_code):
         with self.get_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 sql = """
-                INSERT INTO url_checks (url_id)
-                VALUES (%s) RETURNING id;
+                INSERT INTO url_checks (url_id, status_code)
+                VALUES (%s, %s) RETURNING id;
                 """
-                cur.execute(sql, (url_id,))
+                cur.execute(sql, (url_id, status_code))
                 check_id = cur.fetchone()
                 conn.commit()
                 return check_id
-    
+            
+#выводим информацию о провереке заданного url_id    
     def get_url_checks(self, url_id):
         with self.get_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
