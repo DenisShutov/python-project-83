@@ -3,6 +3,7 @@ from urllib.parse import urlparse
 
 import requests
 import validators
+from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from flask import (
     Flask,
@@ -86,9 +87,33 @@ def check_url(id):
     try:
         r = requests.get(url_name, timeout=5)
         r.raise_for_status()
+
         status_code = r.status_code
-        repo.save_check(id, status_code)
+        soup = BeautifulSoup(r.text, 'html.parser')
+        h1_tag = soup.h1
+        if h1_tag:
+            h1 = cut(h1_tag.get_text())
+        else:
+            h1 = None
+        title_tag = soup.title
+        if title_tag:
+            title = cut(title_tag.get_text())
+        else:
+            title = None
+        meta_tag = soup.find('meta', attrs={'name': 'description'})
+        if meta_tag:
+            description = cut(meta_tag.get('content'))
+        else:
+            description = None
+        repo.save_check(id, status_code, h1, title, description)
         flash('Страница успешно проверена', 'success')
     except requests.exceptions.RequestException:
         flash('Произошла ошибка при проверке', 'danger')
     return redirect(url_for('show_url', id=id))
+
+
+def cut(text):
+    text = text.strip()
+    if len(text) > 200:
+        text = text[:201] + '...'
+    return text
