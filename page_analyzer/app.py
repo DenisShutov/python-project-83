@@ -38,13 +38,14 @@ def add_url():
     normalize_url = normalize(url)
 
     if not validators.url(normalize_url) or len(normalize_url) > 255:
-        flash('Неверный URl', 'danger')
-        return redirect(url_for('index', url=url))
+        flash('Некорректный URl', 'danger')
+        messages = get_flashed_messages(with_categories=True)
+        return render_template('index.html', url=url, messages=messages), 422
     
     url_data = repo.find_by_name(normalize_url)
     if url_data:
         id = url_data['id']
-        flash('Данный URL уже добален', 'info')
+        flash('Страница уже существует', 'info')
         return redirect(url_for('show_url', id=id))
     
     id = repo.save(normalize_url)
@@ -108,7 +109,7 @@ def check_url(id):
         repo.save_check(id, status_code, h1, title, description)
         flash('Страница успешно проверена', 'success')
     except requests.exceptions.RequestException:
-        flash('Произошла ошибка при проверке', 'danger')
+        flash('Произошла ошибка при проверке', 'warning')
     return redirect(url_for('show_url', id=id))
 
 
