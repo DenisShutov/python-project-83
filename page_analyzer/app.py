@@ -38,7 +38,7 @@ def add_url():
     normalize_url = normalize(url)
 
     if not validators.url(normalize_url) or len(normalize_url) > 255:
-        flash('Некорректный URl', 'warning')
+        flash('Некорректный URL', 'warning')
         messages = get_flashed_messages(with_categories=True)
         return render_template('index.html', url=url, messages=messages), 422
     
