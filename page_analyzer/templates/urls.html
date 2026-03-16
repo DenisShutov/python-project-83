@@ -28,12 +28,12 @@
                             <td><a href="{{ url_for('show_url', id=url.id) }}">{{ url.name }}</a></td>
                             <td>
                                 {% if url.last_check %}
-                                    {{ url.last_check }}
+                                    {{ url.last_check.strftime('%Y-%m-%d') }}
                                 {% else %}
                                     -
                                 {% endif %}
                             </td>
-                            <td>{{ url.status_code }}</td>
+                            <td>{{ url.status_code or '' }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
