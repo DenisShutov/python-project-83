@@ -1,21 +1,21 @@
-import psycopg2
 import os
-from psycopg2.extras import RealDictCursor
+
+import psycopg2
 from dotenv import load_dotenv
+from psycopg2.extras import RealDictCursor
 
 load_dotenv()
 DATABASE_URL = os.getenv('DATABASE_URL')
 
 
-
 class UrlRepository:
-#метод для создания соединения, init не нужен,  потому что в
-#каждом методе соединение открывается заново
+    # метод для создания соединения, init не нужен,  потому что в
+    # каждом методе соединение открывается заново
     def get_connection(self):
         conn = psycopg2.connect(DATABASE_URL)
         return conn
     
-#вывод всех данных из таблицы urls    
+    # вывод всех данных из таблицы urls    
     def get_content(self):
         with self.get_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -30,7 +30,7 @@ class UrlRepository:
                 cur.execute(sql)
                 return cur.fetchall()
             
-#получение данных об url по id    
+    # получение данных об url по id    
     def find(self, id):
         with self.get_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -38,7 +38,7 @@ class UrlRepository:
                 cur.execute(sql, (id,))
                 return cur.fetchone()
 
-#сохранение url в БД и вывод его id
+    # сохранение url в БД и вывод его id
     def save(self, url):
         with self.get_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -51,7 +51,7 @@ class UrlRepository:
                 conn.commit()
                 return result['id']
 
-#поиск id по имени(url)    
+    # поиск id по имени(url)    
     def find_by_name(self, name):
         with self.get_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -61,12 +61,14 @@ class UrlRepository:
                 cur.execute(sql, (name,))
                 return cur.fetchone()
     
-#сохраняем данные о проверке по url_id в таблицу url_checks 
-    def save_check(self, url_id, status_code, h1=None, title=None, description=None):
+    # сохраняем данные о проверке по url_id в таблицу url_checks 
+    def save_check(self, url_id, status_code, 
+                   h1=None, title=None, description=None):
         with self.get_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 sql = """
-                INSERT INTO url_checks (url_id, status_code, h1, title, description)
+                INSERT INTO url_checks 
+                (url_id, status_code, h1, title, description)
                 VALUES (%s, %s, %s, %s, %s) RETURNING id;
                 """
                 cur.execute(sql, (url_id, status_code, h1, title, description))
@@ -74,7 +76,7 @@ class UrlRepository:
                 conn.commit()
                 return check_id
 
-#выводим информацию о провереке заданного url_id    
+    # выводим информацию о провереке заданного url_id    
     def get_url_checks(self, url_id):
         with self.get_connection() as conn:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
