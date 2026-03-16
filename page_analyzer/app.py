@@ -116,5 +116,5 @@ def check_url(id):
 def cut(text):
     text = text.strip()
     if len(text) > 200:
-        text = text[:201] + '...'
+        text = text[:200] + '...'
     return text
