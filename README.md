@@ -11,3 +11,25 @@ The service checks headers, meta tags, and HTTP response codes.
 
 > ⚠️ **Note**: The service is hosted on [Render.com](https://render.com) with a **temporary database**.  
 > The data may be reset periodically. Hurry up to try it! 🏃‍♂️
+
+### Local setup
+```bash
+# 1. Clone the repository
+git clone https://github.com/DenisShutov/python-project-83.git
+# 2. Move to the repository
+cd python-project-83
+
+# 3. Install dependencies
+make install
+
+# 4. Create .env and setup SECRET_KEY and DATABASE_URL 
+touch .env
+# Open .env and add:
+# SECRET_KEY=your_secret_key
+# DATABASE_URL=postgresql://user:password@localhost:5432/db_name
+
+# 5. Initialize the database
+psql -d <your_database_name> -f database.sql
+# 6. Run in dev mode
+make dev
+```
