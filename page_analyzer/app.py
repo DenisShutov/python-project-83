@@ -1,9 +1,7 @@
 import os
-from urllib.parse import urlparse
 
 import requests
 import validators
-from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from flask import (
     Flask,
@@ -15,7 +13,9 @@ from flask import (
     url_for,
 )
 
-from url_repository import UrlRepository
+from .normalize import normalize
+from .parser import parsing
+from .url_repository import UrlRepository
 
 load_dotenv()
 app = Flask(__name__)
@@ -54,11 +54,6 @@ def add_url():
     return redirect(url_for('show_url', id=id))
 
 
-def normalize(url):
-    parsed = urlparse(url)
-    return f'{parsed.scheme}://{parsed.netloc}'.lower()
-
-
 @app.route('/urls/<int:id>')
 def show_url(id):
     messages = get_flashed_messages(with_categories=True)
@@ -90,31 +85,15 @@ def check_url(id):
         r.raise_for_status()
 
         status_code = r.status_code
-        soup = BeautifulSoup(r.text, 'html.parser')
-        h1_tag = soup.h1
-        if h1_tag:
-            h1 = cut(h1_tag.get_text())
-        else:
-            h1 = None
-        title_tag = soup.title
-        if title_tag:
-            title = cut(title_tag.get_text())
-        else:
-            title = None
-        meta_tag = soup.find('meta', attrs={'name': 'description'})
-        if meta_tag:
-            description = cut(meta_tag.get('content'))
-        else:
-            description = None
+
+        parsing_data = parsing(r.text)
+        h1 = parsing_data['h1']
+        title = parsing_data['title']
+        description = parsing_data['description']
+
         repo.save_check(id, status_code, h1, title, description)
+        
         flash('Страница успешно проверена', 'success')
     except requests.exceptions.RequestException:
         flash('Произошла ошибка при проверке', 'warning')
     return redirect(url_for('show_url', id=id))
-
-
-def cut(text):
-    text = text.strip()
-    if len(text) > 200:
-        text = text[:200] + '...'
-    return text
